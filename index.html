@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>吃货随心选</title>
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Ma Shan Zheng', cursive, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #ffd6e7 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        h1 {
+            color: #ff6b93;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 3.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            letter-spacing: 2px;
+        }
+        
+        .category-selector {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            width: 100%;
+            max-width: 800px;
+            border: 3px dashed #ff9eb5;
+        }
+        
+        .category-selector h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #ff6b93;
+            font-size: 2rem;
+        }
+        
+        .categories {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .category-row {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .category-btn {
+            padding: 12px 20px;
+            background-color: #ff9eb5;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 18px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            flex: 1;
+            max-width: 180px;
+            text-align: center;
+        }
+        
+        .category-btn:hover {
+            background-color: #ff6b93;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+        }
+        
+        .category-btn.active {
+            background-color: #a8e6cf;
+            color: #555;
+            transform: scale(1.05);
+        }
+        
+        .wheel-container {
+            position: relative;
+            width: 500px;
+            height: 500px;
+            margin: 20px auto;
+            display: none;
+        }
+        
+        #wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            border: 8px solid #ff9eb5;
+        }
+        
+        .pointer {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 40px;
+            background-color: #ff6b93;
+            clip-path: polygon(50% 100%, 0 0, 100% 0);
+            z-index: 10;
+        }
+        
+        .controls {
+            margin: 30px 0;
+            display: none;
+            gap: 20px;
+        }
+        
+        button {
+            padding: 12px 30px;
+            font-size: 20px;
+            background-color: #ff9eb5;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        button:hover {
+            background-color: #ff6b93;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px 30px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            font-size: 24px;
+            text-align: center;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            display: none;
+            border: 2px dashed #ff9eb5;
+        }
+        
+        .selected-category {
+            margin-top: 15px;
+            font-size: 22px;
+            color: #ff6b93;
+            text-align: center;
+            display: none;
+        }
+        
+        .history {
+            margin-top: 30px;
+            width: 100%;
+            max-width: 800px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: none;
+            border: 3px dashed #ff9eb5;
+        }
+        
+        .history h2 {
+            color: #ff6b93;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+        }
+        
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .history-info {
+            font-size: 14px;
+            color: #888;
+        }
+        
+        .history-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+        }
+        
+        .history-item {
+            padding: 8px 12px;
+            border-bottom: 1px dashed #ff9eb5;
+            font-size: 18px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .history-item:last-child {
+            border-bottom: none;
+        }
+        
+        .history-time {
+            font-size: 14px;
+            color: #888;
+        }
+        
+        .history-actions {
+            display: flex;
+            justify-content: center;
+        }
+        
+        .clear-history {
+            padding: 8px 20px;
+            background-color: #ff9eb5;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        @media (max-width: 768px) {
+            .category-row {
+                flex-wrap: wrap;
+            }
+            
+            .category-btn {
+                flex: 0 0 calc(50% - 10px);
+                max-width: calc(50% - 10px);
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .wheel-container {
+                width: 350px;
+                height: 350px;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            button {
+                padding: 10px 20px;
+                font-size: 18px;
+            }
+            
+            .category-btn {
+                padding: 10px 15px;
+                font-size: 16px;
+            }
+            
+            .history-item {
+                flex-direction: column;
+            }
+            
+            .history-time {
+                margin-top: 5px;
+            }
+            
+            .category-row {
+                flex-direction: column;
+            }
+            
+            .category-btn {
+                flex: 1;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>吃货随心选</h1>
+        
+        <div class="category-selector">
+            <h2>公主，请选择分类</h2>
+            <div class="categories" id="category-buttons">
+                <!-- 类别按钮将通过JavaScript动态生成 -->
+            </div>
+        </div>
+        
+        <div class="selected-category" id="selected-category">
+            当前选择：<span id="current-category"></span>
+        </div>
+        
+        <div class="wheel-container" id="wheel-container">
+            <canvas id="wheel" width="500" height="500"></canvas>
+            <div class="pointer"></div>
+        </div>
+        
+        <div class="controls" id="controls">
+            <button id="spin-btn">开始旋转</button>
+            <button id="reset-btn">重新选择类别</button>
+        </div>
+        
+        <div class="result" id="result">点击"开始旋转"按钮试试手气！</div>
+        
+        <div class="history" id="history">
+            <div class="history-header">
+                <h2>历史记录</h2>
+                <div class="history-info">记录将在30分钟后自动清除</div>
+            </div>
+            <div class="history-list" id="history-list">
+                <!-- 历史记录将通过JavaScript动态生成 -->
+            </div>
+            <div class="history-actions">
+                <button class="clear-history" id="clear-history">清除历史记录</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 菜品数据
+        const menuData = {
+            "早餐": ["牛油果吐司", "素鸡腿堡", "三明治牛奶", "椰奶麦片", "油条豆浆", "土豆丝卷饼", "酸菜拌汤", "油饼", "豆腐油角", "小笼包", "蒸饺", "广东肠粉", "菜夹馍", "麻辣烫夹馍", "菜豆腐", "豆腐脑", "韭菜孜卷", "白米粥", "贝贝瓜", "红薯", "海苔饭团", "燕麦粥", "饺子锅贴"],
+            "面食": ["番茄意面", "安康蒸面", "酸菜面条", "酸菜面片", "西安凉皮", "酸菜米线", "油泼拉条", "乾县驴蹄子面", "杨凌蘸水面", "麻酱酸汤面", "素炸酱面", "重庆小面", "葱油拌面", "街头炒面", "豆角焖面", "油盘凉面", "北京打卤面", "菜拌面", "麻辣拌方便面", "幸福水饺", "烩麻食", "炒麻食", "浆水鱼鱼", "什锦泡馍", "十里香馄饨", "炒米粉", "炒河粉", "臊子面", "素炒猫耳朵", "酸辣粉", "新疆炒米粉"],
+            "米饭": ["菠萝炒饭", "锅巴饭", "腊肠土豆焖饭", "酸菜懒饭", "酸菜炒饭", "扬州炒饭", "老干妈炒饭", "酱油炒饭", "土豆泥拌饭", "酸豇豆炒饭", "番茄烩米饭", "外婆菜炒饭"],
+            "凉菜": ["凉拌黄瓜", "苦菊核桃仁", "凉拌豆皮丝", "凉拌菠菜", "凉拌海带", "炝拌莲藕", "凉拌莴笋丝", "凉拌粉丝", "卤味素拼", "凉拌炸豆腐", "捞汁秋葵", "生腌辣椒", "米椒折耳根", "凉拌豆芽", "酸辣竹笋", "手撕杏鲍菇", "红油凉粉", "椒盐蘑菇", "凉拌腐竹", "凉拌素牛排", "芝麻汤圆球", "孜然土豆球", "凉拌豆干", "凉拌皮木耳", "凉拌金针菇", "凉拌面筋"],
+            "炒菜": ["酸辣土豆片", "酸辣土豆丝", "洋芋粑粑", "泡菜魔芋皮", "酸菜软饼", "泡菜粉条", "手撕包菜", "麻婆豆腐", "小白菜炒豆腐", "老干妈豆腐", "清炒竹笋", "干锅千叶豆腐", "干锅土豆片", "耗油生菜", "蒜蓉西蓝花", "素炒山药", "清炒莲藕丝", "辣炒蒜苔粒", "清炒莴笋", "蚂蚁上树", "蒜蓉粉丝", "清炒荷兰豆", "素三鲜", "蓝莓山药", "清炒西葫芦", "油炸藕盒", "云南菌菇", "线椒洋火姜", "豆泡白菜", "锡纸金针菇", "蒜蓉茄子", "鱼香茄子", "辣子烩菜", "芹菜豆腐干", "虎皮青椒", "清炒空心菜", "洋芋擦擦", "蒜蓉油麦菜", "豆角茄子", "素炒四季豆", "干煸杏鲍菇", "辣炒酸豇豆", "辣炒腐竹", "蘸菜卷饼", "菜包饭", "浇汁炕炕馍", "干锅鹿茸菇", "辣椒面豆腐", "蒜炒冬瓜条", "辣炒青柿子", "酸辣干豆皮丝", "浇汁锅巴", "清炒丝瓜", "青豆玉米粒", "酸辣白菜", "麻辣香锅", "川渝火锅", "豇豆丁外婆菜", "青椒皮木耳丝", "蚂蚁上树", "粉条大乱炖", "辣炒上海青", "渣辣子炒豆干"],
+            "汤类": ["银耳羹", "甜酒芝麻汤圆", "香葱粉丝汤", "白菜粉条豆腐汤", "番茄金针菇", "酸辣汤", "翡翠白玉羹", "冰糖雪梨", "萝卜玉米汤", "枸杞菌菇汤", "香浓素藕汤", "海带冬瓜汤", "浓郁南瓜汤", "火腿紫菜汤", "香菇豆腐丸子汤", "三鲜白菜豆腐汤", "番茄豆皮汤", "上汤山药", "水果甜汤"],
+            "甜点": ["南瓜饼", "粽子", "寿司", "冰粉", "紫薯椰蓉", "豆沙糯米饼", "冰糖水果", "番茄薯条", "糯米葡萄干", "水果捞", "紫薯芒果球", "香甜蜜薯"],
+            "小吃": ["炸串拌馍", "红油面筋", "孜然馍片", "腐乳锅巴", "长沙臭豆腐", "爆米花", "卤味花生", "油炸玉米串"]
+        };
+
+        // 颜色配置
+        const colors = [
+            "#FFB6C1", "#FFD700", "#98FB98", "#87CEEB", "#DDA0DD", 
+            "#F0E68C", "#FFA07A", "#20B2AA", "#FF69B4", "#BA55D3"
+        ];
+
+        // 获取DOM元素
+        const categoryButtonsContainer = document.getElementById('category-buttons');
+        const wheelContainer = document.getElementById('wheel-container');
+        const controls = document.getElementById('controls');
+        const resultElement = document.getElementById('result');
+        const selectedCategoryElement = document.getElementById('selected-category');
+        const currentCategoryElement = document.getElementById('current-category');
+        const spinBtn = document.getElementById('spin-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const historyElement = document.getElementById('history');
+        const historyListElement = document.getElementById('history-list');
+        const clearHistoryBtn = document.getElementById('clear-history');
+        const canvas = document.getElementById('wheel');
+        const ctx = canvas.getContext('2d');
+
+        // 转盘状态
+        let isSpinning = false;
+        let currentRotation = 0;
+        let selectedCategory = null;
+        let currentItems = [];
+        let history = [];
+        let historyCheckInterval;
+
+        // 初始化类别选择按钮
+        function initCategoryButtons() {
+            const categories = Object.keys(menuData);
+            
+            // 创建第一行（前4个分类）
+            const firstRow = document.createElement('div');
+            firstRow.className = 'category-row';
+            
+            // 创建第二行（后4个分类）
+            const secondRow = document.createElement('div');
+            secondRow.className = 'category-row';
+            
+            // 将分类按钮添加到对应的行
+            categories.forEach((category, index) => {
+                const button = document.createElement('button');
+                button.className = 'category-btn';
+                button.textContent = `${category} (${menuData[category].length})`;
+                button.addEventListener('click', () => selectCategory(category));
+                
+                if (index < 4) {
+                    firstRow.appendChild(button);
+                } else {
+                    secondRow.appendChild(button);
+                }
+            });
+            
+            // 将两行添加到容器
+            categoryButtonsContainer.appendChild(firstRow);
+            categoryButtonsContainer.appendChild(secondRow);
+            
+            // 加载历史记录
+            loadHistory();
+            
+            // 启动历史记录检查定时器
+            historyCheckInterval = setInterval(checkExpiredHistory, 60000); // 每分钟检查一次
+        }
+
+        // 选择类别
+        function selectCategory(category) {
+            // 更新选中状态
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            selectedCategory = category;
+            currentItems = menuData[category];
+            currentCategoryElement.textContent = category;
+            
+            // 显示转盘和控件
+            wheelContainer.style.display = 'block';
+            controls.style.display = 'flex';
+            selectedCategoryElement.style.display = 'block';
+            resultElement.style.display = 'flex';
+            
+            // 初始化转盘
+            initWheel();
+        }
+
+        // 初始化转盘
+        function initWheel() {
+            drawWheel();
+        }
+
+        // 绘制转盘
+        function drawWheel() {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = Math.min(centerX, centerY) - 10;
+            
+            // 清空画布
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 计算每个菜品项的角度
+            const totalItems = currentItems.length;
+            const anglePerItem = (2 * Math.PI) / totalItems;
+            
+            // 绘制每个菜品项的扇形
+            currentItems.forEach((item, index) => {
+                const startAngle = index * anglePerItem;
+                const endAngle = (index + 1) * anglePerItem;
+                
+                // 绘制扇形
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+                ctx.closePath();
+                ctx.fillStyle = colors[index % colors.length];
+                ctx.fill();
+                ctx.stroke();
+                
+                // 绘制菜品名称
+                const textAngle = startAngle + anglePerItem / 2;
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                ctx.rotate(textAngle);
+                ctx.textAlign = 'right';
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 14px "Ma Shan Zheng", cursive';
+                
+                // 根据名称长度调整显示
+                let displayText = item;
+                if (item.length > 6) {
+                    displayText = item.substring(0, 6) + '...';
+                }
+                
+                ctx.fillText(displayText, radius - 20, 5);
+                ctx.restore();
+            });
+            
+            // 绘制中心圆
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 20, 0, 2 * Math.PI);
+            ctx.fillStyle = '#ff6b93';
+            ctx.fill();
+            ctx.stroke();
+            
+            // 绘制中心装饰
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 10, 0, 2 * Math.PI);
+            ctx.fillStyle = 'white';
+            ctx.fill();
+        }
+
+        // 旋转转盘
+        function spinWheel() {
+            if (isSpinning) return;
+            
+            isSpinning = true;
+            resultElement.textContent = "旋转中...";
+            resultElement.style.backgroundColor = 'white';
+            
+            // 随机旋转角度 (5-10圈 + 随机角度)
+            const spinAngle = 5 * 360 + Math.random() * 360;
+            const spinDuration = 3000; // 3秒
+            
+            let startTime = null;
+            
+            function animate(currentTime) {
+                if (!startTime) startTime = currentTime;
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / spinDuration, 1);
+                
+                // 缓动函数
+                const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+                const easedProgress = easeOut(progress);
+                
+                currentRotation = easedProgress * spinAngle;
+                
+                // 旋转画布
+                ctx.save();
+                ctx.translate(canvas.width / 2, canvas.height / 2);
+                ctx.rotate((currentRotation * Math.PI) / 180);
+                ctx.translate(-canvas.width / 2, -canvas.height / 2);
+                drawWheel();
+                ctx.restore();
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    // 旋转结束，显示结果
+                    isSpinning = false;
+                    showResult();
+                }
+            }
+            
+            requestAnimationFrame(animate);
+        }
+
+        // 显示结果
+        function showResult() {
+            // 计算指针指向的菜品
+            const totalItems = currentItems.length;
+            const pointerAngle = 360 - (currentRotation % 360); // 因为指针在顶部
+            
+            const itemAngle = 360 / totalItems;
+            const selectedIndex = Math.floor(pointerAngle / itemAngle) % totalItems;
+            const selectedItem = currentItems[selectedIndex];
+            
+            resultElement.textContent = `恭喜！您抽中了：${selectedItem}`;
+            resultElement.style.backgroundColor = '#FFEAA7';
+            
+            // 添加到历史记录
+            addToHistory(selectedCategory, selectedItem);
+        }
+
+        // 添加到历史记录
+        function addToHistory(category, item) {
+            const timestamp = new Date();
+            const record = {
+                category: category,
+                item: item,
+                time: timestamp.toLocaleString(),
+                timestamp: timestamp.getTime()
+            };
+            
+            history.unshift(record);
+            
+            // 限制历史记录数量
+            if (history.length > 50) {
+                history = history.slice(0, 50);
+            }
+            
+            // 更新历史记录显示
+            updateHistoryDisplay();
+            
+            // 保存到本地存储
+            saveHistory();
+            
+            // 显示历史记录区域
+            historyElement.style.display = 'block';
+        }
+
+        // 更新历史记录显示
+        function updateHistoryDisplay() {
+            historyListElement.innerHTML = '';
+            
+            if (history.length === 0) {
+                const emptyMsg = document.createElement('div');
+                emptyMsg.className = 'history-item';
+                emptyMsg.textContent = '暂无历史记录';
+                emptyMsg.style.justifyContent = 'center';
+                historyListElement.appendChild(emptyMsg);
+                return;
+            }
+            
+            history.forEach(record => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                
+                const itemText = document.createElement('span');
+                itemText.textContent = `${record.category}: ${record.item}`;
+                
+                const timeText = document.createElement('span');
+                timeText.className = 'history-time';
+                timeText.textContent = record.time;
+                
+                historyItem.appendChild(itemText);
+                historyItem.appendChild(timeText);
+                historyListElement.appendChild(historyItem);
+            });
+        }
+
+        // 检查过期历史记录
+        function checkExpiredHistory() {
+            const now = new Date().getTime();
+            const thirtyMinutesAgo = now - (30 * 60 * 1000); // 30分钟前的时间戳
+            
+            // 过滤掉30分钟前的记录
+            const initialLength = history.length;
+            history = history.filter(record => record.timestamp >= thirtyMinutesAgo);
+            
+            // 如果有记录被清除，更新显示和存储
+            if (history.length !== initialLength) {
+                updateHistoryDisplay();
+                saveHistory();
+                
+                // 如果没有记录了，隐藏历史记录区域
+                if (history.length === 0) {
+                    historyElement.style.display = 'none';
+                }
+            }
+        }
+
+        // 清除所有历史记录
+        function clearAllHistory() {
+            history = [];
+            updateHistoryDisplay();
+            saveHistory();
+            historyElement.style.display = 'none';
+        }
+
+        // 保存历史记录到本地存储
+        function saveHistory() {
+            localStorage.setItem('foodWheelHistory', JSON.stringify(history));
+        }
+
+        // 从本地存储加载历史记录
+        function loadHistory() {
+            const savedHistory = localStorage.getItem('foodWheelHistory');
+            if (savedHistory) {
+                history = JSON.parse(savedHistory);
+                
+                // 检查加载的记录是否已过期
+                checkExpiredHistory();
+                
+                // 如果有记录，显示历史记录区域
+                if (history.length > 0) {
+                    updateHistoryDisplay();
+                    historyElement.style.display = 'block';
+                }
+            }
+        }
+
+        // 重置转盘
+        function resetWheel() {
+            if (isSpinning) {
+                isSpinning = false;
+            }
+            
+            // 隐藏转盘和控件
+            wheelContainer.style.display = 'none';
+            controls.style.display = 'none';
+            selectedCategoryElement.style.display = 'none';
+            resultElement.style.display = 'none';
+            
+            // 重置选中状态
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            selectedCategory = null;
+            currentItems = [];
+            currentRotation = 0;
+        }
+
+        // 事件监听
+        spinBtn.addEventListener('click', spinWheel);
+        resetBtn.addEventListener('click', resetWheel);
+        clearHistoryBtn.addEventListener('click', clearAllHistory);
+
+        // 初始化
+        window.onload = initCategoryButtons;
+        
+        // 页面卸载前保存历史记录
+        window.addEventListener('beforeunload', saveHistory);
+    </script>
+</body>
+</html>
